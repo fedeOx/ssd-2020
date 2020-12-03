@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>SsdWebApi client</title>
+	<link rel="stylesheet" type="text/css" href="client.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="client.js"> </script>
+</head>
+<body onload="init()">
+	<h1>SsdWebApi client</h1>
+	<div>
+		<textarea id="txtarea" rows="8" cols="50"> </textarea>
+	</div>
+	<div>
+		<input type="button" value="Read all" onclick="findAll();" />
+		<input type="button" value="Read by id" onclick="findById();" />
+		<input type="button" value="post" onclick="postItem();" />
+		<input type="button" value="put" onclick="updateId();" />
+		<input type="button" value="delete" onclick="deleteId();" />
+		<input type="button" value="Read index by id" onclick="getIndexById();" />
+	</div>
+	<div>
+		Id: <input type="number" id="txtId" size="10" value=1>
+		Anno: <input type="number" id="txtNewAnno" size="10" value=1492>
+	</div>
+</body>
+</html>
