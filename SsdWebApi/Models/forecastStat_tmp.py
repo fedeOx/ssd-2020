@@ -18,6 +18,14 @@ def print_figure(fig):
 	buf = io.BytesIO()
 	fig.savefig(buf, format='png')
 	print(base64.b64encode(buf.getbuffer()))
+    
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+        
+def calculateMean(lst):
+    return sum(lst) / len(lst)
 
 
 if __name__ == "__main__":
@@ -33,16 +41,22 @@ if __name__ == "__main__":
    df = pd.read_csv("../" + dffile) # leggo il contenuto del file
    
    values = df[dffile[:-4]].to_numpy() # array of sales data
-   logdata = np.log(values) # log transform
-   data = pd.Series(logdata).diff() # convert to pandas series
+   data = np.log(values) # log transform
+   #data = pd.Series(logdata).diff() # convert to pandas series
+   
+   newdata = list(chunks(data, 25))
+   a = map(calculateMean, newdata)
+   
+   numbers= list(a)
+   print(numbers)
    
    plt.rcParams["figure.figsize"] = (10,8) # redefines figure size
-   plt.plot(data.values); plt.show() # data plot
+   plt.plot(numbers); plt.show() # data plot
    
 
    # acf plot, industrial
    import statsmodels.api as sm
-   sm.graphics.tsa.plot_acf(data.values, lags=261*8)
+   sm.graphics.tsa.plot_acf(numbers, lags=12*5)
    plt.show()
    
    # train and test set
