@@ -9,32 +9,46 @@ import matplotlib.pyplot as plt
 import os, sys
 
 from sklearn.preprocessing import StandardScaler
-import MLP_lib as myMLP
+import keras_MLP_lib as myMLP
 import my_utils as utils
+import PSO as myPSO
+from sklearn.metrics import mean_squared_error
 
-forecast_win_size = 240 # 1 years considering working days only
-sliding_win_size = 22*2 # 2 month considering working days only
+forecast_win_size = 264 # 1 years considering working days only
+sliding_win_size = 22*6 # 2 month considering working days only
 
-def make_MLP_forecast(index_name, dataset_scaled, n_hidden, n_epochs):    
+def make_MLP_forecast(index_name, dataset_scaled, hidden_layers, n_epochs):
+    myMLP.keras_reproducibility()
+    
     train, test = utils.test_train_split(dataset_scaled, forecast_win_size)
 
     # sliding window matrices
-    train_x, train_y = utils.compute_windows(train, sliding_win_size)
-    test_x, test_y = utils.compute_windows(test, sliding_win_size)
-    mlp_trained = myMLP.train(train_x, train_y, test_x, test_y, n_hidden, n_epochs)
+    train_x, train_y = utils.series_to_supervised(train, sliding_win_size)
     
-    trainPredict_scaled, testForecast_scaled = myMLP.predict(mlp_trained, train_x, test_x)
+    model_t = myMLP.train(train_x, train_y, hidden_layers, n_epochs)
     
-    forecast_elems_scaled = myMLP.forecast(mlp_trained, train_x, forecast_win_size)
-      
-    plt.rcParams["figure.figsize"] = (10,8)
+    trainPredict_scaled = myMLP.train_predict(model_t, train_x)
+    
+    last = train_x[len(train_x)-1]
+    last = last[1:]
+    first_window = np.append(last, train_y[-1])
+    forecast_scaled = myMLP.test_forecast(model_t, first_window, forecast_win_size)
+    print('Score on test: MSE = {0}'.format(mean_squared_error(test, forecast_scaled)))
+    
+    plt.rcParams["figure.figsize"] = (16,10)
     plt.title(index_name)
     plt.plot(dataset_scaled)
-    plt.plot(np.concatenate((np.full(sliding_win_size,np.nan), trainPredict_scaled)))
-    plt.plot(np.concatenate((np.full(sliding_win_size+len(train),np.nan), testForecast_scaled)))
+    plt.plot(np.concatenate((np.full(sliding_win_size,np.nan), trainPredict_scaled[:,0])))
+    plt.plot(np.concatenate((np.full(len(dataset_scaled)-forecast_win_size,np.nan), forecast_scaled)))
     plt.show()
     
-    return forecast_elems_scaled
+    plt.rcParams["figure.figsize"] = (16,10)
+    plt.title(index_name + " - ZOOM")
+    plt.plot(test)
+    plt.plot(forecast_scaled)
+    plt.show()
+    
+    return forecast_scaled
 
 def compute_portfolio_variations(forecast):
     size = len(forecast)
@@ -44,7 +58,7 @@ def compute_portfolio_variations(forecast):
     return res
 
 def plot_forecast(index_name, dataset, forecast_elems):
-    plt.rcParams["figure.figsize"] = (10,8)
+    plt.rcParams["figure.figsize"] = (16,10)
     plt.title(index_name)
     plt.plot(dataset)
     plt.plot(np.concatenate((np.full(len(dataset)-forecast_win_size,np.nan), forecast_elems)))
@@ -65,28 +79,30 @@ if __name__ == "__main__":
     os.chdir(dname)
     
     indices_epochs = {
-        'All_Bonds': ((22,22), 98),
-        'FTSE_MIB': ((100,100), 27),
-        'GOLD_SPOT': ((22,22), 80),
-        'MSCI_EM': ((22,22), 20),
-        'MSCI_EURO': ((100,100), 44),
-        'SP_500': ((100,100), 37),
-        'US_Treasury': ((100,100), 26)
+        'All_Bonds': ((66,132,), 200),
+        'FTSE_MIB': ((132,), 200),
+        'GOLD_SPOT': ((66,66,), 350),
+        'MSCI_EM': ((66,66,), 200),
+        'MSCI_EURO': ((66,132,), 300),
+        'SP_500': ((264,), 200),
+        'US_Treasury': ((132,132,), 250)
     }
     
     forecasts = []
     dss = sys.argv[1:]
     
+    """
     for ds in dss:
         df = pd.read_csv("../" + ds)
         dataset = df.values
         dataset = dataset.astype('float32')
         index_name = ds[:-4]
+        hidden_layers = indices_epochs[index_name][0]
+        n_epochs = indices_epochs[index_name][1]
         
         scaler = StandardScaler().fit(dataset)   
         dataset_scaled = scaler.transform(dataset)
-        f = make_MLP_forecast(index_name, dataset_scaled,
-                              n_hidden=indices_epochs[index_name][0], n_epochs=indices_epochs[index_name][1])
+        f = make_MLP_forecast(index_name, dataset_scaled, hidden_layers, n_epochs)
         f = scaler.inverse_transform(f)
         plot_forecast(index_name, dataset, f)
         forecasts.append(f)
@@ -97,7 +113,19 @@ if __name__ == "__main__":
 
     save_on_csv(forecasts, "forecasts.csv")
     save_on_csv(variations, "variations.csv")
-
+    """
+    
+    """
+    pso = myPSO.PSO(c0=0.25, c1=1.5, c2=2.0, pos_min=-100, pos_max=100, dimensionality=20, num_particles=50, num_neighbors=10)
+    pso.run(maxiter=1000)
+    """
+    
+    variations = pd.read_csv("../variations.csv")
+    
+    port = myPSO.Portfolio(variations, investment=100000, risk_weight=0.5, return__weight=0.5)
+    pso = myPSO.PSO(port, c0=0.25, c1=1.5, c2=2, pos_min=0.05, pos_max=1.0, dimensionality=7, num_particles=50, num_neighbors=10)
+    pso.run(maxiter=1000)
+    
     print('finito')
     
 """
