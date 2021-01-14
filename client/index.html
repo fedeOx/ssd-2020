@@ -4,25 +4,47 @@
 	<meta charset="UTF-8">
 	<title>SsdWebApi client</title>
 	<link rel="stylesheet" type="text/css" href="client.css" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script src="client.js"> </script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
-<body onload="init()">
-	<h1>SsdWebApi client</h1>
-	<div>
-		<textarea id="txtarea" rows="8" cols="50"> </textarea>
+<body>
+	<div class="container">
+		<h1 class="text-center">SsdWebApi client</h1>
+		<form>
+			<div class="form-group">
+				<label for="txtCapital">Capitale da investire:</label>
+				<input type="text" class="form-control" id="txtCapital" name="txtCapital" value="100000">
+			</div>
+			<div class="form-group">
+				<label for="txtRisk">Peso minimizzazione del rischio [0,1]:</label>
+				<input type="text" class="form-control" id="txtRisk" name="txtRisk" value="0.5">
+			</div>
+			<div class="text-center">
+				<button type="submit" class="btn btn-dark" onclick="getPortfolio(event)">Esegui</button>
+			</div>
+		</form>
+
+		<div class="input-group">
+		  <div class="input-group-prepend">
+		    <span class="input-group-text">Portafoglio ottimo</span>
+		  </div>
+		  <textarea id="txtarea" class="form-control" aria-label="Portafoglio ottimo" readonly></textarea>
+		</div>
+
+		<div class="input-group">
+			<div class="input-group-prepend">
+    		<span class="input-group-text">Capitale futuro</span>
+  		</div>
+  		<input id="txtFutureCapital" type="text" class="form-control" aria-label="Capitale futuro" readonly>
+		</div>
+
+		<div class="loader"></div>
+
 	</div>
-	<div>
-		<input type="button" value="Read all" onclick="findAll();" />
-		<input type="button" value="Read by id" onclick="findById();" />
-		<input type="button" value="post" onclick="postItem();" />
-		<input type="button" value="put" onclick="updateId();" />
-		<input type="button" value="delete" onclick="deleteId();" />
-		<input type="button" value="Read index by id" onclick="getIndexById();" />
-	</div>
-	<div>
-		Id: <input type="number" id="txtId" size="10" value=1>
-		Anno: <input type="number" id="txtNewAnno" size="10" value=1492>
-	</div>
+
+	<script src="client.js"> </script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </body>
 </html>

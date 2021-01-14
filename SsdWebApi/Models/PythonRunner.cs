@@ -77,7 +77,7 @@ public class PythonRunner
             {
                // when Exited is called, OutputDataReceived could still being loaded
                // you need a proper release code here
-               Console.WriteLine("exiting ...");
+               Console.WriteLine("exiting from python...");
                res = _outputBuilder.ToString(); /* Quando il processo termina, concatento tutto quello che era stato appeso dentro _outputBuilder per creare un'unica stringona. */
             };
          
@@ -85,43 +85,11 @@ public class PythonRunner
             // You need to call this explicitly after Start
             process.BeginOutputReadLine(); /* Dice di leggere tutto quello che viene prodotto in output dal processo */
 
-            /*
-            // Pass multiple commands to cmd.exe
-            using (var sw = process.StandardInput)
-            {
-               if (sw.BaseStream.CanWrite)
-               {
-                  //sw.WriteLine("echo off");
-                  sw.WriteLine($"/ProgramData/Anaconda3/condabin/conda.bat activate {Environment}");
-                  sw.WriteLine($"python {strCommand}");
-                  //sw.WriteLine("exit");
-               }
-            }  
-            */    
-
             // With WaitForExit, it is same as synchronous,
             // to make it truly asynchronous, you'll need to work on it from here
             process.WaitForExit();
          }
          // here no more process
          return res;
-      }    
-
-      // Converts a base64 string (as printed by python script) to a bitmap image.
-      public Bitmap FromPythonBase64String(string pythonBase64String)
-      {
-         // Remove the first two chars and the last one.
-         // First one is 'b' (python format sign), others are quote signs.
-         string base64String = pythonBase64String.Substring(2, pythonBase64String.Length - 3);
-
-         // Convert now raw base46 string to byte array.
-         byte[] imageBytes = Convert.FromBase64String(base64String);
-
-         // Read bytes as stream.
-         var memoryStream = new MemoryStream(imageBytes, 0, imageBytes.Length);
-         memoryStream.Write(imageBytes, 0, imageBytes.Length);
-
-         // Create bitmap from stream.
-         return (Bitmap)Image.FromStream(memoryStream, true);
       }
 }

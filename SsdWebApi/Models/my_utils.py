@@ -10,7 +10,7 @@ from pandas import concat
 
 def compute_windows(nparray, npast=1):
     dataX, dataY = [], [] # window and value
-    for i in range(len(nparray)-npast-1):
+    for i in range(len(nparray)-npast):
         a = nparray[i:(i+npast), 0]
         dataX.append(a)
         dataY.append(nparray[i + npast, 0])
@@ -18,7 +18,6 @@ def compute_windows(nparray, npast=1):
 
 # transform a time series dataset into a supervised learning dataset
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-	n_vars = 1 if type(data) is list else data.shape[1]
 	df = DataFrame(data)
 	cols = list()
 	# input sequence (t-n, ... t-1)

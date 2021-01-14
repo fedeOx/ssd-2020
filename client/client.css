@@ -1,0 +1,30 @@
+.container, .container-md, .container-sm {
+    max-width: 720px !important;
+}
+
+.input-group {
+  padding-top: 20px;
+  visibility: hidden;
+}
+
+#txtFutureCapital, #txtarea {
+  background-color: white;
+}
+
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #17a2b8;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+  margin-top: 20px;
+  z-index: 9999;
+  visibility: hidden;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

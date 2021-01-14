@@ -20,25 +20,30 @@ namespace SsdWebApi.Controllers
             _context = context;
             persistence = new Persistance(context);
         }
-    
-        [HttpGet]
-        public ActionResult<List<Indice>> GetAll() => _context.indici.ToList();
 
-        [HttpGet("{id}")] //[HttpGet("{id}", Name = "GetSerie")]
-        public string GetSerie(int id)
+        [HttpGet]
+        public string GetPortfolio([FromQuery] int capital, [FromQuery] double riskAlpha)
         {
-            if (id > 6) id = 6;
+            Console.WriteLine("Request received");
+
+            if (riskAlpha > 1.0)
+                riskAlpha = 1.0;
+            if (riskAlpha < 0)
+                riskAlpha = 0;
 
             string res = "{";
-            string[] indices = new string[] {"SP_500", "FTSE_MIB", "GOLD_SPOT", "MSCI_EM", "MSCI_EURO", "All_Bonds", "US_Treasury"};
-            string attribute = indices[id]; // In "attribute" ci sarà l'indice richiesto (esso sarà anche il nome del file ".csv" che andrà a creare)
-
-            persistence.readIndexAndBuildCSV(attribute);
+            string[] indices = new string[] {"All_Bonds", "FTSE_MIB", "GOLD_SPOT", "MSCI_EM", "MSCI_EURO", "SP_500", "US_Treasury"};
+            string sourcesNames = "";
+            foreach (string index in indices) {
+                persistence.readIndexAndBuildCSV(index);
+                sourcesNames += index + ".csv ";
+            }
 
             Forecast forecast = new Forecast();
-            res += forecast.forecastSARIMAindex(attribute);
+            res += forecast.predictPortfolio(sourcesNames, capital, riskAlpha);
             res += "}";
-           
+
+            Console.WriteLine("Sending response...");
             return res;
         }
 

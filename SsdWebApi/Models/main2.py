@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec  9 12:06:42 2020
+Created on Sun Jan  3 20:17:20 2021
 
 @author: Federico
 """
@@ -43,6 +43,8 @@ def load_ext_data(path):
 def make_MLP_forecast(index_name, dataset_scaled, hidden_layers, n_epochs):
     mlpUtil = MLPUtil(dataset_scaled, sliding_win_size, forecast_win_size, ext_vars_time = one_month)
     
+    dataset_scaled = dataset_scaled[-35*sliding_win_size:]
+    
     train, test = utils.test_train_split(dataset_scaled, forecast_win_size)
 
     # sliding window matrices
@@ -54,11 +56,13 @@ def make_MLP_forecast(index_name, dataset_scaled, hidden_layers, n_epochs):
                      'GDP_USA': [],
                      'INFL_EURO': [],
                      'INFL_USA': [],
-                     #'PMI_EURO': [],
+                     'PMI_EURO': [],
                      'PMI_USA': []}
     corrected_train_x = train_x
     for v in ext_vars_dict:
         ext_data_scaled = load_ext_data('../ext_vars/' + v + '.csv')
+        if (v != 'PMI_EURO'):
+            ext_data_scaled = ext_data_scaled[-35:] # 35 are the values that are available in PMI_EURO
         ext_vars_dict[v] = ext_data_scaled
         corrected_train_x = add_ext_var(corrected_train_x, ext_data_scaled)        
     
@@ -66,11 +70,11 @@ def make_MLP_forecast(index_name, dataset_scaled, hidden_layers, n_epochs):
     model_t = mlpUtil.train(corrected_train_x, train_y, hidden_layers, n_epochs)
     
     # mlpUtil.train_predict(model_t, train_x)
-    mlpUtil.train_predict(model_t, corrected_train_x)
+    trainPredict_scaled = mlpUtil.train_predict(model_t, corrected_train_x)
     
     first_window = train_x[len(train_x)-1] # last window of the training set
     last_ext_vars_index = int(forecast_win_size/one_month)
-    
+    # get last last_ext_vars_index values of each ext var
     ext_vars_tuple = ()
     for v in ext_vars_dict:
         ext_var_data = ext_vars_dict[v]
@@ -80,9 +84,18 @@ def make_MLP_forecast(index_name, dataset_scaled, hidden_layers, n_epochs):
     forecast_scaled = mlpUtil.test_forecast(model_t, first_window, ext_vars_tuple)
     print('Score on test: MSE = {0}'.format(mean_squared_error(test, forecast_scaled)))
     
-    mlpUtil.plotResult(index_name)
-    
-    mlpUtil.plotZoom(index_name + " - ZOOM", test)
+    plt.rcParams["figure.figsize"] = (16,10)
+    plt.title(index_name)
+    plt.plot(dataset_scaled)
+    plt.plot(np.concatenate((np.full(sliding_win_size, np.nan), trainPredict_scaled[:,0])))
+    plt.plot(np.concatenate((np.full(len(dataset_scaled)-forecast_win_size, np.nan), forecast_scaled)))
+    plt.show()
+
+    plt.rcParams["figure.figsize"] = (16,10)
+    plt.title(index_name + " - ZOOM")
+    plt.plot(test)
+    plt.plot(forecast_scaled)
+    plt.show()
     
     return forecast_scaled
 
@@ -115,13 +128,13 @@ if __name__ == "__main__":
     os.chdir(dname)
     
     indices_epochs = {
-        'All_Bonds': ((58,58,), 200),
-        'FTSE_MIB': ((58,58,), 200),
-        'GOLD_SPOT': ((29,), 400),
-        'MSCI_EM': ((58,58,), 200),
-        'MSCI_EURO': ((58,), 300),
-        'SP_500': ((58,58,), 200),
-        'US_Treasury': ((58,58,), 400)
+        'All_Bonds': ((60,60,), 200),
+        'FTSE_MIB': ((60,60,), 200),
+        'GOLD_SPOT': ((30,), 400),
+        'MSCI_EM': ((60,60,), 200),
+        'MSCI_EURO': ((60,), 300),
+        'SP_500': ((60,60,), 200),
+        'US_Treasury': ((60,60,), 400)
     }
     forecasts = []
     dss = sys.argv[1:8]
@@ -145,6 +158,7 @@ if __name__ == "__main__":
     for f in forecasts:
         variations.append(compute_portfolio_variations(f))
 
+    """
     # TEST
     #save_on_csv(forecasts, "forecasts.csv")
     #save_on_csv(variations, "variations.csv")
@@ -180,3 +194,4 @@ if __name__ == "__main__":
     print('BEST_PORTFOLIO ' + output)
     print('BEST_RETURN {0:.2f}'.format(best_ret))
     print('BEST_RISK {0:.2f}'.format(best_risk))
+    """

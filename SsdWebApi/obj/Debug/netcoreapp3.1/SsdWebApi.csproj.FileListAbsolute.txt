@@ -156,3 +156,4 @@ D:\Users\Federico\progetti_universita\SSD\project_2020\SsdWebApi\bin\Debug\netco
 D:\Users\Federico\progetti_universita\SSD\project_2020\SsdWebApi\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\Microsoft.Win32.SystemEvents.dll
 D:\Users\Federico\progetti_universita\SSD\project_2020\SsdWebApi\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp3.0\System.Drawing.Common.dll
 D:\Users\Federico\progetti_universita\SSD\project_2020\SsdWebApi\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll
+D:\Users\Federico\progetti_universita\SSD\project_2020\SsdWebApi\bin\Debug\netcoreapp3.1\portfolio.json

@@ -26,8 +26,6 @@ namespace SsdWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<StagioneContext>(options =>
-                options.UseSqlite("Data Source=testDB.sqlite"));
             services.AddDbContext<IndiciContext>(options =>
                 options.UseSqlite(@"Data Source=D:\Users\Federico\progetti_universita\SSD\project_2020\SsdWebApi\finindices.sqlite"));
             services.AddControllers();
